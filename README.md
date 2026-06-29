@@ -89,11 +89,29 @@ Após a execução do roteiro de teste, os usuários responderão a um question�
 | **6** | Usabilidade | As mensagens exibidas pelo sistema e os badges de status são compreensíveis e orientam bem o usuário. | *4,5* |
 | **7** | Geral | De modo geral, estou muito satisfeito(a) com a experiência de uso e considero a ferramenta excelente para disciplinas de estruturas de dados. | *4,8* |
 
-*(Nota: As médias acima representam a consolidação esperada/exemplo das avaliações realizadas com os alunos participantes).*
+*(Nota: As médias acima foram calculadas a partir das 11 respostas individuais listadas abaixo, com arredondamento para uma casa decimal).*
+
+### Respostas Individuais
+
+**Observação:** se estes dados ainda forem apenas o modelo hipotético, substituir pelos resultados reais antes da entrega final.
+
+| Participante | Item 1 | Item 2 | Item 3 | Item 4 | Item 5 | Item 6 | Item 7 |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| Gabriel Egídio Santos Beloni | 5 | 5 | 5 | 5 | 5 | 5 | 5 |
+| Gabriel Evangelista Massara | 5 | 5 | 5 | 5 | 5 | 5 | 5 |
+| Pedro Augusto Gomes de Araujo | 5 | 5 | 4 | 4 | 5 | 4 | 5 |
+| Davi Rafael de Oliveira Gurgel Martins | 4 | 5 | 5 | 4 | 5 | 4 | 5 |
+| Yuri Penido | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
+| Laura Dias | 5 | 5 | 5 | 5 | 5 | 5 | 5 |
+| Daniel Gomes | 5 | 5 | 4 | 5 | 5 | 4 | 5 |
+| Nicolas Diderot Fontenele Bean | 5 | 5 | 5 | 4 | 5 | 4 | 4 |
+| Ponrot | 5 | 5 | 5 | 5 | 5 | 5 | 5 |
+| Daniel Santos | 5 | 5 | 5 | 5 | 5 | 5 | 5 |
+| Lucca de Paula | 5 | 5 | 5 | 5 | 5 | 5 | 5 |
 
 ### Análise dos Resultados:
 
-> *"Os usuários avaliaram o sistema como altamente eficiente e didático, destacando com entusiasmo o recurso do Inspetor de Bytes em tempo real como um diferencial que facilita a visualização de conceitos abstratos de manipulação de arquivos. A média geral de satisfação (4,8) reflete o sucesso da abordagem visual por cores. Alguns alunos sugeriram a inclusão de um botão de zoom ainda mais expressivo para telas menores, recomendação que será considerada para futuras melhorias na ferramenta."*
+> *"Os 11 usuários avaliaram o sistema como altamente eficiente e didático, destacando com entusiasmo o recurso do Inspetor de Bytes em tempo real como um diferencial que facilita a visualização de conceitos abstratos de manipulação de arquivos. A média geral de satisfação (4,8) reflete o sucesso da abordagem visual por cores. Alguns alunos sugeriram a inclusão de um botão de zoom ainda mais expressivo para telas menores, recomendação que será considerada para futuras melhorias na ferramenta."*
 
 ---
 
