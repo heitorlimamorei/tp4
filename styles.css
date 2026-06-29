@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --primary: #0f172a;
+  --primary-container: #1e293b;
+  --on-primary: #ffffff;
+  --surface: #f8fafc;
+  --surface-bright: #ffffff;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f1f5f9;
+  --surface-container: #e2e8f0;
+  --surface-container-high: #cbd5e1;
+  --surface-container-highest: #94a3b8;
+  --on-surface: #0f172a;
+  --on-surface-variant: #475569;
+  --outline: #64748b;
+  --outline-variant: #e2e8f0;
+  --error: #dc2626;
+  --error-container: #fee2e2;
+  --on-error-container: #991b1b;
+  
+  /* Byte Highlight Colors */
+  --highlight-active: #0d9488;
+  --highlight-deleted: #e11d48;
+  --highlight-size: #64748b;
+  --highlight-id: #3b82f6;
+  --highlight-name: #8b5cf6;
+  --highlight-price: #10b981;
+  --highlight-date: #f59e0b;
+  --highlight-header: #6366f1;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--surface);
+  color: var(--on-surface);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: 'Hanken Grotesk', sans-serif;
+}
+
+code, pre, .font-code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Custom scrollbar for clean technical look */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-container-low);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-container-highest);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--outline);
+}
+
+/* Glassmorphism & Cards */
+.card-shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+.tech-grid {
+  background-image: radial-gradient(var(--surface-container) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Byte Cell Animations & Hover Effects */
+.byte-cell {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--outline-variant);
+  margin: 1px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  position: relative;
+}
+
+.byte-cell:hover {
+  transform: translateY(-2px) scale(1.1);
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #000;
+}
+
+.byte-cell.active-record {
+  opacity: 1;
+}
+
+.byte-cell.deleted-record {
+  opacity: 0.55;
+  filter: grayscale(40%);
+}
+
+.byte-cell.deleted-record:hover {
+  opacity: 1;
+  filter: none;
+}
+
+/* Specific Byte Highlights */
+.bg-byte-header { background-color: #e0e7ff; color: #3730a3; border-color: #c7d2fe; }
+.bg-byte-active { background-color: #ccfbf1; color: #0f766e; border-color: #99f6e4; }
+.bg-byte-deleted { background-color: #ffe4e6; color: #be123c; border-color: #fecdd3; }
+.bg-byte-size { background-color: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+.bg-byte-id { background-color: #dbeafe; color: #1d4ed8; border-color: #bfdbfe; }
+.bg-byte-name { background-color: #ede9fe; color: #6d28d9; border-color: #ddd6fe; }
+.bg-byte-price { background-color: #d1fae5; color: #047857; border-color: #a7f3d0; }
+.bg-byte-date { background-color: #fef3c7; color: #b45309; border-color: #fde68a; }
+
+/* Pulse animation on update/create */
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(13, 148, 136, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 1.5s infinite;
+}
+
+/* Table styles */
+.data-table th {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  background-color: var(--surface-container-low);
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.data-table td {
+  padding: 12px 14px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--outline-variant);
+  color: var(--on-surface);
+}
+
+.data-table tr:hover td {
+  background-color: var(--surface-container-low);
+}

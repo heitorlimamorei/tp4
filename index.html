@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de Arquivos (CRUD) - AED III</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0f172a',
+                        'primary-container': '#1e293b',
+                        surface: '#f8fafc',
+                        'surface-bright': '#ffffff',
+                        'surface-container-low': '#f1f5f9',
+                        'surface-container': '#e2e8f0',
+                        'surface-container-high': '#cbd5e1',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Material Symbols -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="flex flex-col min-h-screen bg-surface text-slate-800 antialiased">
+
+    <!-- TopNavBar -->
+    <header class="bg-primary text-white border-b border-slate-700 flex justify-between items-center w-full px-6 h-16 sticky top-0 z-50 shadow-md">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold shadow-sm">
+                <span class="material-symbols-outlined">memory</span>
+            </div>
+            <div>
+                <h1 class="font-display text-xl font-bold tracking-tight">PUC Minas | AEDs III</h1>
+                <p class="text-xs text-slate-300 font-mono">TP4: Simulação de Arquivo em Vetor de Bytes</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <span class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-teal-400 border border-slate-700">
+                <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
+                Storage API: LocalStorage
+            </span>
+            <button id="btn-sample-data" class="bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold px-3 py-1.5 rounded-md transition-all flex items-center gap-1 shadow-sm">
+                <span class="material-symbols-outlined text-[16px]">data_array</span>
+                Carregar Exemplos
+            </button>
+            <button id="btn-clean-data" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold px-3 py-1.5 rounded-md transition-all flex items-center gap-1 shadow-sm" title="Limpar todo o arquivo">
+                <span class="material-symbols-outlined text-[16px]">delete_sweep</span>
+                Limpar Arquivo
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace Area -->
+    <div class="flex flex-1 overflow-hidden relative">
+        
+        <!-- SideNavBar -->
+        <aside class="hidden md:flex bg-slate-900 text-slate-300 w-64 flex-col border-r border-slate-800 shrink-0">
+            <div class="p-4 border-b border-slate-800">
+                <h2 class="font-display text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3">Estatísticas do Arquivo</h2>
+                <div class="space-y-3 font-code text-xs">
+                    <div class="flex justify-between items-center bg-slate-800/60 p-2 rounded border border-slate-700/50">
+                        <span>Tamanho Total:</span>
+                        <span id="stat-total-bytes" class="text-teal-400 font-bold">0 B</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-slate-800/60 p-2 rounded border border-slate-700/50">
+                        <span>Último ID Gerado:</span>
+                        <span id="stat-last-id" class="text-blue-400 font-bold">0</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-slate-800/60 p-2 rounded border border-slate-700/50">
+                        <span>Registros Ativos:</span>
+                        <span id="stat-active-records" class="text-emerald-400 font-bold">0</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-slate-800/60 p-2 rounded border border-slate-700/50">
+                        <span>Lápides (Excluídos):</span>
+                        <span id="stat-deleted-records" class="text-rose-400 font-bold">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 flex-1 overflow-y-auto">
+                <h2 class="font-display text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Estrutura do Produto</h2>
+                <div class="text-xs text-slate-400 space-y-2 leading-relaxed">
+                    <p><strong class="text-slate-200">lapide:</strong> 1 byte (0=Ativo, 1=Excluído)</p>
+                    <p><strong class="text-slate-200">recordSize:</strong> 4 bytes (Int32)</p>
+                    <p><strong class="text-slate-200">id:</strong> 4 bytes (Int32)</p>
+                    <p><strong class="text-slate-200">name:</strong> 2 bytes length + UTF-8 bytes</p>
+                    <p><strong class="text-slate-200">price:</strong> 4 bytes (Float32)</p>
+                    <p><strong class="text-slate-200">createdAt:</strong> 8 bytes (Long Epoch Ms)</p>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-slate-800 bg-slate-950/50 text-[11px] text-slate-400">
+                <p>💡 <strong class="text-slate-300">Dica:</strong> Alterações não sobrescrevem registros antigos. O antigo recebe lápide 1 e o novo é anexado ao final.</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Canvas -->
+        <main class="flex-1 p-6 overflow-y-auto bg-surface tech-grid">
+            <div class="max-w-7xl mx-auto space-y-6">
+                
+                <!-- Bento Grid Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    
+                    <!-- Left Column: Controls & Active Table (5 columns wide) -->
+                    <div class="lg:col-span-5 space-y-6 flex flex-col">
+                        
+                        <!-- Unified Form Panel -->
+                        <div class="bg-white border border-slate-200 rounded-xl p-5 card-shadow">
+                            <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-teal-600">edit_note</span>
+                                    <h3 id="form-title" class="font-display text-lg font-bold text-slate-800">Novo Produto (Inclusão)</h3>
+                                </div>
+                                <span id="form-mode-badge" class="px-2 py-0.5 bg-teal-100 text-teal-800 text-xs font-semibold rounded">Modo: Criar</span>
+                            </div>
+
+                            <!-- Search Input -->
+                            <div class="mb-4 flex gap-2">
+                                <div class="relative flex-1">
+                                    <span class="material-symbols-outlined absolute left-2.5 top-2 text-slate-400 text-[20px]">search</span>
+                                    <input id="search-input" class="w-full pl-9 pr-3 py-1.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500 font-code text-sm bg-slate-50" placeholder="Filtrar por Nome ou ID..." type="text">
+                                </div>
+                                <button id="btn-clear-search" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 rounded border border-slate-300 transition-colors" title="Limpar busca">
+                                    <span class="material-symbols-outlined text-[18px]">close</span>
+                                </button>
+                            </div>
+
+                            <!-- Form -->
+                            <form id="product-form" class="space-y-4">
+                                <input type="hidden" id="edit-id" value="">
+                                
+                                <div>
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Nome do Produto</label>
+                                    <input id="product-name" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500 font-code text-sm bg-white" placeholder="Ex: Caderno Universitário" type="text">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Preço (Float em R$)</label>
+                                    <input id="product-price" required step="0.01" min="0" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500 font-code text-sm bg-white" placeholder="24.90" type="number">
+                                </div>
+
+                                <!-- Actions -->
+                                <div class="pt-2 flex gap-2">
+                                    <button type="submit" class="flex-1 bg-teal-600 hover:bg-teal-500 text-white py-2 px-4 rounded-md font-semibold text-sm shadow-sm transition-all flex justify-center items-center gap-1.5">
+                                        <span class="material-symbols-outlined text-[18px]">save</span>
+                                        <span id="btn-submit-text">Salvar Produto</span>
+                                    </button>
+                                    <button type="button" id="btn-cancel-edit" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 py-2 px-3 rounded-md font-semibold text-sm transition-colors">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Active Products Table -->
+                        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden card-shadow flex-1 flex flex-col">
+                            <div class="bg-slate-50 border-b border-slate-200 px-4 py-3 flex justify-between items-center">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-slate-600 text-[20px]">table_rows</span>
+                                    <h4 class="font-display font-bold text-sm text-slate-800">Produtos Ativos no Arquivo</h4>
+                                </div>
+                                <span id="table-count-badge" class="bg-slate-200 text-slate-700 text-xs px-2 py-0.5 rounded font-code">0</span>
+                            </div>
+                            <div class="overflow-x-auto max-h-60 overflow-y-auto">
+                                <table class="w-full data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nome</th>
+                                            <th>Preço</th>
+                                            <th class="text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="active-products-tbody">
+                                        <!-- Preenchido via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Memory Map Legend -->
+                        <div class="bg-white border border-slate-200 rounded-xl p-5 card-shadow">
+                            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[18px]">palette</span> Legenda do Mapa de Memória Hexadecimal
+                            </h4>
+                            <div class="grid grid-cols-2 gap-2.5 font-code text-xs">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 rounded bg-byte-header border"></div>
+                                    <span>Cabeçalho (lastId)</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 rounded bg-byte-active border"></div>
+                                    <span>Lápide Ativo (00)</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 rounded bg-byte-deleted border"></div>
+                                    <span>Lápide Excluído (01)</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 rounded bg-byte-size border"></div>
+                                    <span>Tamanho (Int 4B)</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 rounded bg-byte-id border"></div>
+                                    <span>ID Produto (Int 4B)</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 rounded bg-byte-name border"></div>
+                                    <span>Nome (UTF-8 Var)</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 rounded bg-byte-price border"></div>
+                                    <span>Preço (Float 4B)</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 rounded bg-byte-date border"></div>
+                                    <span>Data Criação (8B)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right Column: Hex Byte Visualizer (7 columns wide) -->
+                    <div class="lg:col-span-7 flex flex-col space-y-6">
+                        
+                        <!-- Technical Inspector Box -->
+                        <div class="bg-slate-900 text-slate-100 border border-slate-800 rounded-xl p-5 card-shadow">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-teal-400">biotech</span>
+                                    <h3 class="font-display font-bold text-base text-white">Inspetor Estático de Byte em Tempo Real</h3>
+                                </div>
+                                <span class="text-xs text-slate-400 font-code">Passe o mouse sobre qualquer byte abaixo</span>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 font-code text-xs">
+                                <div class="bg-slate-800/80 p-2.5 rounded border border-slate-700/50">
+                                    <span class="block text-slate-400 text-[10px] uppercase mb-0.5">Endereço / Offset</span>
+                                    <span id="inspect-offset" class="text-teal-400 font-bold text-sm">--</span>
+                                </div>
+                                <div class="bg-slate-800/80 p-2.5 rounded border border-slate-700/50">
+                                    <span class="block text-slate-400 text-[10px] uppercase mb-0.5">Registro Pertencente</span>
+                                    <span id="inspect-record" class="text-blue-400 font-bold text-sm truncate block">--</span>
+                                </div>
+                                <div class="bg-slate-800/80 p-2.5 rounded border border-slate-700/50">
+                                    <span class="block text-slate-400 text-[10px] uppercase mb-0.5">Campo / Tipo</span>
+                                    <span id="inspect-field" class="text-purple-400 font-bold text-sm truncate block">--</span>
+                                </div>
+                                <div class="bg-slate-800/80 p-2.5 rounded border border-slate-700/50">
+                                    <span class="block text-slate-400 text-[10px] uppercase mb-0.5">Valor Decodificado</span>
+                                    <span id="inspect-value" class="text-emerald-400 font-bold text-sm truncate block">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Byte Vector Canvas -->
+                        <div class="bg-white border border-slate-200 rounded-xl card-shadow flex-1 flex flex-col overflow-hidden">
+                            <div class="bg-slate-50 border-b border-slate-200 px-5 py-3.5 flex justify-between items-center">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-indigo-600">data_object</span>
+                                    <h3 class="font-display font-bold text-base text-slate-800">Simulação de Arquivo Binário (Vetor de Bytes)</h3>
+                                </div>
+                                <span class="font-code text-xs text-slate-500 bg-white px-2.5 py-1 border border-slate-200 rounded shadow-sm">
+                                    Armazenado em: <code class="text-teal-600 font-bold">localStorage[tp4_products_file_bytes]</code>
+                                </span>
+                            </div>
+
+                            <div id="byte-grid-container" class="p-6 flex-1 overflow-y-auto space-y-6 bg-slate-50/50">
+                                <!-- Renderizado via JS -->
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="ByteStream.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializa arquivo
+            TP4Products.initFile();
+
+            // Referências aos elementos DOM
+            const searchInput = document.getElementById('search-input');
+            const btnClearSearch = document.getElementById('btn-clear-search');
+            const productForm = document.getElementById('product-form');
+            const formTitle = document.getElementById('form-title');
+            const formModeBadge = document.getElementById('form-mode-badge');
+            const editIdInput = document.getElementById('edit-id');
+            const productNameInput = document.getElementById('product-name');
+            const productPriceInput = document.getElementById('product-price');
+            const btnSubmitText = document.getElementById('btn-submit-text');
+            const btnCancelEdit = document.getElementById('btn-cancel-edit');
+            const tbody = document.getElementById('active-products-tbody');
+            const tableCountBadge = document.getElementById('table-count-badge');
+            
+            const statTotalBytes = document.getElementById('stat-total-bytes');
+            const statLastId = document.getElementById('stat-last-id');
+            const statActiveRecords = document.getElementById('stat-active-records');
+            const statDeletedRecords = document.getElementById('stat-deleted-records');
+
+            const inspectOffset = document.getElementById('inspect-offset');
+            const inspectRecord = document.getElementById('inspect-record');
+            const inspectField = document.getElementById('inspect-field');
+            const inspectValue = document.getElementById('inspect-value');
+
+            const byteGridContainer = document.getElementById('byte-grid-container');
+
+            let currentFilter = '';
+
+            // Função principal de renderização UI
+            function renderAll() {
+                const { lastId, records, bytes } = TP4Products.scanFile();
+
+                // Estatísticas
+                statTotalBytes.textContent = `${bytes.length} bytes`;
+                statLastId.textContent = lastId;
+                const actives = records.filter(r => r.lapide === 0);
+                const deleteds = records.filter(r => r.lapide === 1);
+                statActiveRecords.textContent = actives.length;
+                statDeletedRecords.textContent = deleteds.length;
+
+                // Renderiza Tabela de Ativos filtrados
+                const filteredActives = actives.filter(r => {
+                    if (!currentFilter) return true;
+                    const q = currentFilter.toLowerCase();
+                    return r.name.toLowerCase().includes(q) || r.id.toString().includes(q);
+                });
+
+                tableCountBadge.textContent = filteredActives.length;
+                tbody.innerHTML = '';
+
+                if (filteredActives.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-slate-400 italic">Nenhum produto ativo encontrado.</td></tr>`;
+                } else {
+                    filteredActives.forEach(prod => {
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-slate-50 transition-colors";
+                        tr.innerHTML = `
+                            <td class="font-code font-bold text-indigo-600">#${prod.id}</td>
+                            <td class="font-medium text-slate-800">${prod.name}</td>
+                            <td class="font-code text-emerald-600 font-semibold">R$ ${prod.price.toFixed(2)}</td>
+                            <td class="text-right space-x-1">
+                                <button onclick="editProduct(${prod.id}, '${prod.name.replace(/'/g, "\\'")}', ${prod.price})" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded text-xs font-semibold transition-colors">
+                                    Editar
+                                </button>
+                                <button onclick="removeProduct(${prod.id})" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded text-xs font-semibold transition-colors">
+                                    Excluir
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                // Renderiza Vetor de Bytes
+                renderByteGrid(lastId, records, bytes);
+            }
+
+            // Renderiza o Visualizador Hexadecimal
+            function renderByteGrid(lastId, records, bytes) {
+                byteGridContainer.innerHTML = '';
+
+                if (bytes.length === 0) {
+                    byteGridContainer.innerHTML = `<div class="text-center py-12 text-slate-400">Arquivo vazio.</div>`;
+                    return;
+                }
+
+                // Cabeçalho do arquivo (4 bytes lastId)
+                const headerBox = document.createElement('div');
+                headerBox.className = "bg-white p-4 rounded-lg border border-slate-200 card-shadow";
+                headerBox.innerHTML = `
+                    <div class="flex justify-between items-center mb-2.5">
+                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-700 flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span> Cabeçalho do Arquivo (lastId: ${lastId})
+                        </span>
+                        <span class="font-code text-[11px] text-slate-400">Offset: 0x0000 - 0x0003 (4 bytes)</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1" id="grid-header-cells"></div>
+                `;
+                byteGridContainer.appendChild(headerBox);
+                const headerCellsContainer = headerBox.querySelector('#grid-header-cells');
+
+                for (let i = 0; i < Math.min(4, bytes.length); i++) {
+                    const hex = (bytes[i] & 0xFF).toString(16).padStart(2, '0').toUpperCase();
+                    const cell = createByteCell(hex, 'bg-byte-header', i, 'Cabeçalho (lastId)', 'Int32 (4B)', lastId);
+                    headerCellsContainer.appendChild(cell);
+                }
+
+                // Registros
+                records.forEach(rec => {
+                    const recBox = document.createElement('div');
+                    const isActive = rec.lapide === 0;
+                    const statusColor = isActive ? 'text-teal-700' : 'text-rose-600';
+                    const dotColor = isActive ? 'bg-teal-500' : 'bg-rose-500';
+                    const borderClass = isActive ? 'border-slate-200' : 'border-rose-200/60 bg-rose-50/20';
+                    const opacityClass = isActive ? '' : 'opacity-75';
+
+                    recBox.className = `p-4 rounded-lg border ${borderClass} card-shadow transition-all ${opacityClass}`;
+                    recBox.innerHTML = `
+                        <div class="flex justify-between items-center mb-2.5">
+                            <span class="text-xs font-bold uppercase tracking-wider ${statusColor} flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full ${dotColor}"></span>
+                                Registro #${rec.index} (ID: ${rec.id}) - ${isActive ? 'ATIVO' : 'EXCLUÍDO (*)'}
+                            </span>
+                            <span class="font-code text-[11px] text-slate-400">
+                                Offset: 0x${rec.offsets.start.toString(16).padStart(4,'0').toUpperCase()} | Tamanho: ${rec.recordSize + 5} bytes
+                            </span>
+                        </div>
+                        <div class="flex flex-wrap gap-1" id="grid-rec-${rec.index}"></div>
+                    `;
+                    byteGridContainer.appendChild(recBox);
+                    const recCells = recBox.querySelector(`#grid-rec-${rec.index}`);
+
+                    const recNameStr = `Reg #${rec.index} (ID ${rec.id})`;
+
+                    for (let i = rec.offsets.start; i < rec.offsets.end; i++) {
+                        if (i >= bytes.length) break;
+                        const hex = (bytes[i] & 0xFF).toString(16).padStart(2, '0').toUpperCase();
+                        let colorClass = '';
+                        let fieldName = '';
+                        let typeName = '';
+                        let valueStr = '';
+
+                        if (i === rec.offsets.lapide) {
+                            colorClass = isActive ? 'bg-byte-active' : 'bg-byte-deleted';
+                            fieldName = 'Lápide';
+                            typeName = 'Byte (1B)';
+                            valueStr = isActive ? '0 (Ativo)' : '1 (Excluído)';
+                        } else if (i >= rec.offsets.size && i < rec.offsets.id) {
+                            colorClass = 'bg-byte-size';
+                            fieldName = 'Tamanho do Registro';
+                            typeName = 'Int32 (4B)';
+                            valueStr = `${rec.recordSize} bytes`;
+                        } else if (i >= rec.offsets.id && i < rec.offsets.name) {
+                            colorClass = 'bg-byte-id';
+                            fieldName = 'ID do Produto';
+                            typeName = 'Int32 (4B)';
+                            valueStr = `#${rec.id}`;
+                        } else if (i >= rec.offsets.name && i < rec.offsets.price) {
+                            colorClass = 'bg-byte-name';
+                            fieldName = 'Nome do Produto';
+                            typeName = 'UTF-8 String';
+                            valueStr = rec.name;
+                        } else if (i >= rec.offsets.price && i < rec.offsets.date) {
+                            colorClass = 'bg-byte-price';
+                            fieldName = 'Preço';
+                            typeName = 'Float32 (4B)';
+                            valueStr = `R$ ${rec.price.toFixed(2)}`;
+                        } else {
+                            colorClass = 'bg-byte-date';
+                            fieldName = 'Data Criação';
+                            typeName = 'Epoch Long (8B)';
+                            valueStr = rec.createdAtStr;
+                        }
+
+                        const cell = createByteCell(hex, colorClass, i, recNameStr, `${fieldName} (${typeName})`, valueStr);
+                        recCells.appendChild(cell);
+                    }
+                });
+
+                // EOF indicator
+                const eofDiv = document.createElement('div');
+                eofDiv.className = "pt-3 border-t border-dashed border-slate-300 flex items-center justify-center gap-2 text-slate-400 text-xs font-code";
+                eofDiv.innerHTML = `<span class="material-symbols-outlined text-[16px]">horizontal_rule</span> FIM DO ARQUIVO (EOF) - Total: ${bytes.length} bytes`;
+                byteGridContainer.appendChild(eofDiv);
+            }
+
+            function createByteCell(hex, colorClass, offset, recordName, fieldInfo, valueStr) {
+                const div = document.createElement('div');
+                div.className = `byte-cell ${colorClass}`;
+                div.textContent = hex;
+                div.title = `Offset 0x${offset.toString(16).padStart(4,'0').toUpperCase()} | ${fieldInfo}`;
+
+                div.addEventListener('mouseenter', () => {
+                    inspectOffset.textContent = `0x${offset.toString(16).padStart(4,'0').toUpperCase()} (${offset})`;
+                    inspectRecord.textContent = recordName;
+                    inspectField.textContent = fieldInfo;
+                    inspectValue.textContent = valueStr;
+                });
+
+                return div;
+            }
+
+            // Funções globais da UI
+            window.editProduct = (id, name, price) => {
+                editIdInput.value = id;
+                productNameInput.value = name;
+                productPriceInput.value = price;
+                
+                formTitle.textContent = `Alterar Produto #${id}`;
+                formModeBadge.textContent = "Modo: Edição";
+                formModeBadge.className = "px-2 py-0.5 bg-amber-100 text-amber-800 text-xs font-semibold rounded";
+                btnSubmitText.textContent = "Atualizar Produto";
+                btnCancelEdit.classList.remove('hidden');
+                
+                productNameInput.focus();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            window.removeProduct = (id) => {
+                if (confirm(`Confirma a exclusão lógica do produto #${id}? (Lápide será mudada para 1)`)) {
+                    TP4Products.deleteProduct(id);
+                    renderAll();
+                }
+            };
+
+            btnCancelEdit.addEventListener('click', () => {
+                resetForm();
+            });
+
+            function resetForm() {
+                editIdInput.value = '';
+                productForm.reset();
+                formTitle.textContent = "Novo Produto (Inclusão)";
+                formModeBadge.textContent = "Modo: Criar";
+                formModeBadge.className = "px-2 py-0.5 bg-teal-100 text-teal-800 text-xs font-semibold rounded";
+                btnSubmitText.textContent = "Salvar Produto";
+                btnCancelEdit.classList.add('hidden');
+            }
+
+            productForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const id = editIdInput.value ? parseInt(editIdInput.value) : null;
+                const name = productNameInput.value.trim();
+                const price = parseFloat(productPriceInput.value);
+
+                if (id) {
+                    TP4Products.updateProduct(id, name, price);
+                } else {
+                    TP4Products.createProduct(name, price);
+                }
+
+                resetForm();
+                renderAll();
+            });
+
+            searchInput.addEventListener('input', (e) => {
+                currentFilter = e.target.value;
+                renderAll();
+            });
+
+            btnClearSearch.addEventListener('click', () => {
+                searchInput.value = '';
+                currentFilter = '';
+                renderAll();
+            });
+
+            document.getElementById('btn-sample-data').addEventListener('click', () => {
+                TP4Products.loadSampleData();
+                resetForm();
+                renderAll();
+            });
+
+            document.getElementById('btn-clean-data').addEventListener('click', () => {
+                if (confirm("Deseja realmente limpar todo o arquivo? Todos os dados serão perdidos.")) {
+                    TP4Products.cleanBase();
+                    resetForm();
+                    renderAll();
+                }
+            });
+
+            // Primeira renderização
+            renderAll();
+        });
+    </script>
+</body>
+</html>
