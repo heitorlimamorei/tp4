@@ -123,20 +123,20 @@ Após a execução do roteiro de teste, os usuários responderão a um question�
 
 ## Checklist Obrigatório
 
-Abaixo estão as respostas justificadas para o checklist de entrega exigido pela disciplina:
+Abaixo estão as respostas justificadas para o checklist de entrega exigido pela disciplina. As justificativas foram escritas de forma conservadora para evitar marcar como implementado algo que não possa ser verificado no repositório.
 
 - **A página web com a visualização interativa do CRUD de produtos foi criada?**
-  **Sim.** A aplicação foi desenvolvida e estruturada em `index.html`, `styles.css` e `app.js`, oferecendo um CRUD completo e interativo em tempo real.
+  **Sim.** A página está implementada em `index.html`, com estilos em `styles.css` e lógica em `app.js`. A interface permite incluir, consultar/filtrar, alterar e excluir logicamente produtos, além de exibir o vetor de bytes e o inspetor de campos.
 - **Há um vídeo de até 3 minutos demonstrando o uso da visualização?**
-  **Sim.** O vídeo demonstrativo foi gravado cobrindo todas as operações do roteiro de testes e está disponível no arquivo `tp4.mp4`, incluído junto aos arquivos do projeto.
+  **Sim.** O arquivo `tp4.mp4` está presente no repositório. A duração verificada do arquivo é de aproximadamente **2 minutos e 13 segundos** (132,95 s), portanto abaixo do limite de 3 minutos.
 - **O trabalho foi criado apenas com HTML, CSS e JS?**
-  **Sim.** O projeto foi construído inteiramente com tecnologias web nativas do lado do cliente (HTML5, CSS3 e JavaScript Vanilla), utilizando a API `LocalStorage` do navegador, sem dependência de back-ends, bancos de dados externos ou frameworks pesados.
+  **Sim, com ressalva.** A aplicação é estática e roda no navegador usando HTML, CSS e JavaScript, sem back-end, sem banco externo e sem etapa de build. A interface carrega Tailwind CSS e Material Symbols por CDN para aparência visual; caso a regra da disciplina proíba qualquer dependência externa, esses recursos devem ser removidos ou substituídos por CSS local antes da entrega.
 - **O relatório do trabalho foi entregue no APC?**
-  **Sim.** Este documento comprova a elaboração técnica do relatório completo, acompanhado dos resultados da avaliação com os usuários, devidamente submetido no ambiente do APC.
+  **Responder "Sim" somente após a submissão no APC.** O relatório está presente no repositório neste `README.md`, mas a entrega no APC não pode ser comprovada apenas pelos arquivos locais. Se o envio já foi feito, a resposta correta é: **Sim. O relatório foi entregue no APC e também está disponível no repositório como `README.md`.**
 - **O trabalho está completo e funcionando sem erros de execução?**
-  **Sim.** A aplicação foi exaustivamente testada em navegadores modernos, executando todas as operações de manipulação binária, conversões de tipos e atualizações de DOM sem emitir exceções ou erros no console.
+  **Sim, considerando o fluxo principal testado.** Foram verificados os fluxos de inclusão, consulta/listagem, alteração com marcação de lápide do registro antigo e exclusão lógica. Também foi verificada a consistência do arquivo binário simulado: após criar dois produtos, alterar um e excluir outro, o sistema mantém apenas o produto alterado como ativo e preserva os registros antigos com lápide `1`.
 - **O trabalho é original e não a cópia de um trabalho de outro grupo?**
-  **Sim.** Toda a arquitetura visual, a lógica de varredura de bytes e o inspetor interativo foram desenvolvidos do zero pelo nosso grupo, incorporando unicamente a biblioteca de conversão `ByteStream.js` autorizada e fornecida pela professora.
+  **Sim.** A implementação da interface, da varredura dos registros, do CRUD sobre o vetor de bytes e do inspetor interativo está nos arquivos do próprio grupo. A biblioteca `ByteStream.js` foi usada como base autorizada para serialização e desserialização de tipos primitivos.
 
 ---
 
