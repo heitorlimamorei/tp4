@@ -23,6 +23,12 @@ A persistência dos dados obedece estritamente à restrição técnica do enunci
 
 ---
 
+## Vídeo de Demonstração
+
+O projeto inclui o arquivo **`tp4.mp4`**, que apresenta a demonstração das funcionalidades implementadas, incluindo as operações de inclusão, consulta, alteração e exclusão de produtos, além da visualização estrutural dos bytes e do inspetor em tempo real.
+
+---
+
 ## Módulos e Classes Criadas
 
 A aplicação foi desenvolvida exclusivamente com tecnologias web nativas (HTML5, CSS3 e JavaScript Vanilla), organizada de forma modular:
@@ -122,7 +128,7 @@ Abaixo estão as respostas justificadas para o checklist de entrega exigido pela
 - **A página web com a visualização interativa do CRUD de produtos foi criada?**
   **Sim.** A aplicação foi desenvolvida e estruturada em `index.html`, `styles.css` e `app.js`, oferecendo um CRUD completo e interativo em tempo real.
 - **Há um vídeo de até 3 minutos demonstrando o uso da visualização?**
-  **Sim.** O vídeo demonstrativo foi gravado cobrindo todas as operações do roteiro de testes e disponibilizado juntamente com a entrega final no APC (link inserido no envio do relatório).
+  **Sim.** O vídeo demonstrativo foi gravado cobrindo todas as operações do roteiro de testes e está disponível no arquivo `tp4.mp4`, incluído junto aos arquivos do projeto.
 - **O trabalho foi criado apenas com HTML, CSS e JS?**
   **Sim.** O projeto foi construído inteiramente com tecnologias web nativas do lado do cliente (HTML5, CSS3 e JavaScript Vanilla), utilizando a API `LocalStorage` do navegador, sem dependência de back-ends, bancos de dados externos ou frameworks pesados.
 - **O relatório do trabalho foi entregue no APC?**
